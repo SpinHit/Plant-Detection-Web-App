@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+
+   <video id="video" width="320" height="240" autoplay></video>
+   <div class="navbar">
+      <img src="maison.svg" alt="maison" class="maison">
+      <img src="malette.svg" alt="malette" class="malette">
+      <button id="click-photo"><img src="photo.svg" alt="photo" class="photo"></button>
+      <img src="fleur.svg" alt="fleur" class="fleur">
+      <img src="hamburger.svg" alt="hamburger" class="hamburger">
+   </div>
+
+
+   <div id="panel">
+      <canvas id="canvas" width="320" height="240"></canvas>
+      <div id="field_name">
+         <h4 id="Nom">Nom de la plante detecté : </h4>
+         <p id="Description">Description : </p>
+         <p>Lien wikipédia : <span id="lien"></span></p>
+         <div>
+            <h5>Autres photos :</h5>
+            <p id="image"></p>
+         </div>
+      </div>
+   </div>
+
+   <script type="text/javascript">
+
+      const Nom = document.getElementById('Nom');
+      const Description = document.getElementById('Description');
+      const Image = document.getElementById('image');
+      const lien = document.getElementById('lien');
+
+
+      let video = document.querySelector("#video");
+      let click_button = document.querySelector("#click-photo");
+      let canvas = document.querySelector("#canvas");
+
+      /* Camera stream */
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(function (stream) {
+         video.srcObject = stream;
+      });
+
+
+
+
+      click_button.addEventListener('click', function () {
+
+         // un click sur deux on affiche le panel
+         if (click_button.style.backgroundColor == "white") {
+            click_button.style.backgroundColor = "rgb(0, 255, 0)";
+            document.getElementById("panel").style.display = "none";
+            document.getElementById("video").style.display = "flex";
+         } else {
+            click_button.style.backgroundColor = "white";
+            document.getElementById("panel").style.display = "block";
+
+            // on met en display none la video
+            document.getElementById("video").style.display = "none";
+
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            var canvasData = canvas.toDataURL("image/png");
+
+            $.ajax({
+               type: "POST",
+               url: "testSave.php",
+               data: {
+                  imgBase64: canvasData
+               }
+            }).done(function (data) {
+               console.log('saved');
+
+               var reponse = JSON.parse(data)
+               console.log(reponse);
+               var NomData = reponse.suggestions[0].plant_details.common_names[0];
+               var DescriptionData = reponse.suggestions[0].plant_details.wiki_description.value;
+               var lienWiki = reponse.suggestions[0].plant_details.wiki_description.citation;
+               var img1 = reponse.suggestions[0].similar_images[0].url;
+               var img2 = reponse.suggestions[0].similar_images[1].url;
+
+               Nom.textContent += NomData;
+               Description.textContent += DescriptionData;
+               lien.innerHTML = '<a href="' + lienWiki + '" target="_blank">Wikipédia</a>';
+               Image.innerHTML = '<img src="' + img1 + '" width = "300">' + '<img src="' + img2 + '" width = "300" >';
+
+            });
+
+         }
+
+         /*              */
+
+
+
+
+      });
+
+   </script>
+</body>
+<style>
+   video {
+      width: 100%;
+      margin: 0 auto;
+      height: auto;
+   }
+
+   body {
+      /* #1E2F1E */
+      background-color: #0D0D0D;
+      margin: 0px;
+      overflow: hidden;
+   }
+
+   .navbar {
+      display: flex;
+      gap: 16%;
+      justify-content: center;
+      background-color: #0D0D0D;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      z-index: 10;
+   }
+
+   .navbar button {
+      border-radius: 30px;
+      margin-bottom: 30px;
+   }
+
+   .navbar img {
+      width: 60px;
+   }
+
+   #panel {
+      display: none;
+      background: red;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+   }
+</style>
+
+</html>
