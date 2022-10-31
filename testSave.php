@@ -9,7 +9,7 @@ function encodeImages($images){
 }
 function identifyPlants($file_names){
 	$encoded_images = encodeImages($file_names);
-	$api_key = "zS1CtOgPpNolGbUyQvWohtSIRJs8vYG7lJRQ9M82lwM4gWAyCr";
+	$api_key = "7h5NT5OfARgWmqQunNNnpk3s8eej94rRngfhwrxRWF5hqaKjQh";
 	$params = array(
 		"api_key" => $api_key,
 		"images" => $encoded_images,
