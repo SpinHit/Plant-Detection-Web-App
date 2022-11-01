@@ -11,7 +11,7 @@
    <video id="video" width="320" height="240" autoplay></video>
 
 
-
+   <!-- Partie en dessous de la photo -->
    <div id="panel">
       <canvas id="canvas" width="320" height="240"></canvas>
       <div id="field_name">
@@ -44,10 +44,6 @@
       let click_button = document.querySelector("#click-photo");
       let canvas = document.querySelector("#canvas");
 
-      /* Camera stream */
-      /*       navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(function (stream) {
-               video.srcObject = stream;
-            }); */
       // Camera stream by using the rear camera
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false }).then(function (stream) {
          video.srcObject = stream;
@@ -94,6 +90,13 @@
                var img2 = reponse.suggestions[0].similar_images[1].url;
 
                Nom.textContent += NomData;
+               // if description is over 720 characters, we cut it and add "..." at the end
+               if (DescriptionData.length > 710) {
+                  DescriptionData = DescriptionData.substring(0, 720) + "...";
+               } else {
+                  DescriptionData = DescriptionData;
+               }
+
                Description.textContent += DescriptionData;
 
                // we put the image inside the a tag
@@ -172,6 +175,7 @@
       box-shadow: 0 0 20px 0 #0D0D0D;
 
       background: #1E2F1E;
+      object-fit: cover;
    }
 
    #Nom {
